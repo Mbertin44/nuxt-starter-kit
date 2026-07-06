@@ -1,0 +1,6 @@
+name = "nuxt-starter-kit"
+compatibility_date = "2025-01-15"
+
+[observability.logs]
+enabled = true
+invocation_logs = true

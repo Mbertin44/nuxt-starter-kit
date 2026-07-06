@@ -1,0 +1,10 @@
+@import "tailwindcss";
+@import "@nuxt/ui";
+
+/*
+  Placeholder theme. `app.config.ts` maps primary/secondary/neutral to
+  built-in Nuxt UI palette names so the project is usable out of the box —
+  swap those names, or add custom hex ramps here via `@theme`, once a real
+  brand palette exists. `--font-heading`/`--spacing-*` fall back to
+  nuxt-ui-kit's own defaults (see its app/assets/css/main.css).
+*/

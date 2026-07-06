@@ -1,0 +1,6 @@
+pnpm-lock.yaml
+.output
+.nuxt
+.data
+dist
+public
