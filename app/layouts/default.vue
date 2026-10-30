@@ -1,6 +1,6 @@
 <!--
-  Default site layout: opaque header from the start, plus toast notifications
-  for pages that need them (e.g. the contact form).
+  Default site layout: opaque header from the start. Toasts (e.g. from the
+  contact form) are rendered by UApp in app.vue.
 
   MHeader/MFooter come from nuxt-ui-kit (see README.md). Replace the
   placeholder props below with the project's actual brand/navigation, or wrap
@@ -21,7 +21,9 @@
     <main>
       <slot />
     </main>
-    <MFooter brand-name="My Project" :navigation-items="[{ label: 'Contact', to: '/contact' }]" />
-    <UToaster />
+    <MFooter
+      brand-name="My Project"
+      :navigation-items="[{ label: 'Contact', to: '/contact' }]"
+    />
   </div>
 </template>

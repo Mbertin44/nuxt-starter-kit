@@ -23,20 +23,21 @@ This is a **starting point**, not a library. For shared, reusable components (he
 
 ## What's included
 
-| Layer              | Technology                        | Notes                                                                                         |
-| ------------------ | ---------------------------------- | ---------------------------------------------------------------------------------------------- |
-| Framework          | [Nuxt](https://nuxt.com) 4         | Uses the `app/` source directory layout                                                       |
-| Component library  | [Nuxt UI](https://ui.nuxt.com) v4  | Plus [`nuxt-ui-kit`](https://github.com/Mbertin44/nuxt-ui-kit) for `MHeader`/`MFooter`/etc.    |
-| Styling            | Tailwind CSS v4                    | Configured through Nuxt UI; theme tokens in `app/assets/css/main.css`                          |
-| Images             | `@nuxt/image`                      | Required by `nuxt-ui-kit`; no provider configured yet — add one (e.g. `cloudinary`) if needed |
-| Icons              | Nuxt Icon (Iconify)                | Lucide (`i-lucide-*`) included by default                                                     |
-| Forms / validation | Zod v4                             | Example contact form schema in `app/pages/contact.vue`                                        |
-| Language           | TypeScript 5                       | Checked with `vue-tsc` via `nuxt typecheck`                                                    |
-| Linting            | ESLint 9 (flat config)             | Correctness/logic rules only — formatting is delegated to Prettier via `eslint-config-prettier` |
-| Formatting         | Prettier                           | `prettier-plugin-tailwindcss` sorts Tailwind utility classes automatically                      |
-| Package manager    | pnpm                                | —                                                                                              |
-| Server runtime     | Nitro (bundled with Nuxt)          | Deploy target: **Cloudflare Workers** (`wrangler.toml` included)                                |
-| CI                 | GitHub Actions                     | Lint + typecheck on every push (`.github/workflows/ci.yml`)                                    |
+| Layer              | Technology                        | Notes                                                                                           |
+| ------------------ | --------------------------------- | ----------------------------------------------------------------------------------------------- |
+| Framework          | [Nuxt](https://nuxt.com) 4        | Uses the `app/` source directory layout                                                         |
+| Component library  | [Nuxt UI](https://ui.nuxt.com) v4 | Plus [`nuxt-ui-kit`](https://github.com/Mbertin44/nuxt-ui-kit) for `MHeader`/`MFooter`/etc.     |
+| Styling            | Tailwind CSS v4                   | Configured through Nuxt UI; theme tokens in `app/assets/css/main.css`                           |
+| Images             | `@nuxt/image`                     | No provider configured yet — add one (e.g. `cloudinary`) if needed                              |
+| Icons              | Nuxt Icon (Iconify)               | Lucide (`i-lucide-*`) included by default                                                       |
+| Forms / validation | Zod v4                            | Example contact form schema in `app/pages/contact.vue`                                          |
+| Language           | TypeScript 5                      | Checked with `vue-tsc` via `nuxt typecheck`                                                     |
+| Linting            | ESLint 9 (flat config)            | Correctness/logic rules only — formatting is delegated to Prettier via `eslint-config-prettier` |
+| Formatting         | Prettier                          | `prettier-plugin-tailwindcss` sorts Tailwind utility classes automatically                      |
+| Package manager    | pnpm 10                           | Version pinned in `package.json` (`packageManager`)                                             |
+| Runtime            | Node 24                           | `.nvmrc`, read by nvm, CI and Cloudflare Workers Builds; `engines` in `package.json`            |
+| Server runtime     | Nitro (bundled with Nuxt)         | Preset `cloudflare_module` with `deployConfig`: local builds match Workers Builds               |
+| CI                 | GitHub Actions                    | Layer check, format check, lint and typecheck on every push (`.github/workflows/ci.yml`)        |
 
 Deliberately **not** included, since they're specific to individual past projects rather than generic starting points: `@nuxtjs/seo`, `@nuxt/fonts`, a Cloudflare KV cache binding, a Guesty-style external API integration. Add them back per-project when actually needed.
 
@@ -59,14 +60,16 @@ nuxt-starter-kit/
 ├── nuxt.config.ts                 # Nuxt configuration — extends nuxt-ui-kit
 ├── wrangler.toml                  # Cloudflare Workers deployment config
 ├── eslint.config.mjs              # ESLint flat config (extends Nuxt's own config + eslint-config-prettier)
-└── .prettierrc                    # Prettier config (Tailwind class sorting)
+├── .prettierrc                    # Prettier config (Tailwind class sorting)
+├── .nvmrc                         # Node version (24)
+└── CONVENTIONS.md                 # Conventions shared by every project started from this template
 ```
 
 ---
 
 ## Using nuxt-ui-kit components
 
-`nuxt.config.ts` already has `extends: ["github:Mbertin44/nuxt-ui-kit"]`, so `MHeader`, `MFooter`, `MRevealSection`, `MIconCard`, `MCalendar` and `MDateRangePicker` are available in any page/component without an import statement — see [nuxt-ui-kit's README](https://github.com/Mbertin44/nuxt-ui-kit#components) for their props/slots.
+`package.json` installs the kit pinned on a tag (`"nuxt-ui-kit": "github:Mbertin44/nuxt-ui-kit#v0.1.0"`) and `nuxt.config.ts` has `extends: ["nuxt-ui-kit"]`, so `MHeader`, `MFooter`, `MRevealSection`, `MIconCard`, `MCalendar` and `MDateRangePicker` are available in any page/component without an import statement — see [nuxt-ui-kit's README](https://github.com/Mbertin44/nuxt-ui-kit#components) for their props/slots. Moving to a newer version of the kit is an explicit change: update the tag in `package.json`, then run `pnpm install`.
 
 You're free to also create your own local components (`app/components/Header.vue`, for instance) — the `M` prefix on the kit's components means there's no naming collision either way.
 
@@ -80,27 +83,36 @@ Copy `.env.example` to `.env` and fill in the values:
 NUXT_PUBLIC_WEB3FORMS_ACCESS_KEY=xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
 ```
 
-| Variable                           | Purpose                                                                                                |
-| ----------------------------------- | -------------------------------------------------------------------------------------------------------- |
+| Variable                           | Purpose                                                                                                                           |
+| ---------------------------------- | --------------------------------------------------------------------------------------------------------------------------------- |
 | `NUXT_PUBLIC_WEB3FORMS_ACCESS_KEY` | Access key for [Web3Forms](https://web3forms.com), used by the example contact page to deliver form submissions without a backend |
 
-**On Cloudflare Workers Builds**: `NUXT_PUBLIC_*` variables back Nuxt's `runtimeConfig.public`, which is resolved at **build time** — set this variable's scope to **Build** (not just Runtime) in the Cloudflare dashboard, or the deployed site will submit an empty access key.
+**On Cloudflare Workers**: `NUXT_PUBLIC_*` variables back Nuxt's `runtimeConfig.public`. The Worker reads them **at runtime** for every server-rendered page, so set them as runtime variables of the Worker. Pages that are prerendered at build time bake the value in, so if a project prerenders pages, also set the variable as a **Build** variable in Workers Builds. A plain variable added in the Cloudflare dashboard is removed by the next `wrangler deploy` unless `wrangler.toml` sets `keep_vars = true` (secrets are kept).
 
 ---
 
 ## Getting started
 
 ```bash
+nvm use            # Node 24, from .nvmrc
 pnpm install       # installs dependencies (postinstall runs `nuxt prepare`)
 pnpm dev           # dev server → http://localhost:3000
-pnpm build         # production build (Nitro/Cloudflare Workers output)
-pnpm preview       # preview the production build locally
+pnpm build         # Cloudflare Workers build in .output/ (same output as Workers Builds)
+pnpm preview       # runs the built Worker locally with wrangler dev
 pnpm lint          # ESLint
 pnpm typecheck     # vue-tsc via `nuxt typecheck`
+pnpm format        # Prettier (pnpm format:check in CI)
 ```
+
+Add your own favicon in `public/` and link it from `app/app.vue` when you start a project.
 
 ---
 
 ## Deployment
 
-Deploys to **Cloudflare Workers** (Nitro's Cloudflare preset, auto-detected from `wrangler.toml`). Connect the repo to a Cloudflare Workers Builds project for automatic build-and-deploy on push, or run `wrangler deploy` manually. CI (`.github/workflows/ci.yml`) only runs lint + typecheck — it does not deploy.
+Deploys to **Cloudflare Workers**. `nuxt.config.ts` sets the Nitro preset `cloudflare_module` with `cloudflare.deployConfig`: every build writes `.output/server/wrangler.json` (entry point, assets, `nodejs_compat`, merged with the root `wrangler.toml`) and a `.wrangler/deploy/config.json` pointer, so `npx wrangler deploy` works right after `pnpm build`.
+
+- **Workers Builds** (automatic deploy on push): connect the repo in the Cloudflare dashboard and set the build command to `pnpm build`; the deploy command defaults to `npx wrangler deploy`.
+- **Manually**: `pnpm build`, then `npx wrangler deploy` (requires `wrangler login` or `CLOUDFLARE_API_TOKEN`).
+
+CI (`.github/workflows/ci.yml`) checks that the kit layer is loaded, then runs the format check, lint and typecheck. It does not deploy.

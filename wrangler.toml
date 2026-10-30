@@ -1,5 +1,6 @@
 name = "nuxt-starter-kit"
-compatibility_date = "2025-01-15"
+compatibility_date = "2025-10-01"
+compatibility_flags = ["nodejs_compat"]
 
 [observability.logs]
 enabled = true

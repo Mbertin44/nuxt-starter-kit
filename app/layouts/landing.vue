@@ -18,7 +18,9 @@
     <main>
       <slot />
     </main>
-    <MFooter brand-name="My Project" :navigation-items="[{ label: 'Contact', to: '/contact' }]" />
-    <UToaster />
+    <MFooter
+      brand-name="My Project"
+      :navigation-items="[{ label: 'Contact', to: '/contact' }]"
+    />
   </div>
 </template>

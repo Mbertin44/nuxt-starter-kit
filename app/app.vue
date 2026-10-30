@@ -1,8 +1,7 @@
-<script setup>
+<script setup lang="ts">
 // Root application component: sets global head defaults and mounts the layout/page tree.
+// UApp also renders the toaster used by useToast().
 useHead({
-  meta: [{ name: "viewport", content: "width=device-width, initial-scale=1" }],
-  link: [{ rel: "icon", href: "/favicon.ico" }],
   htmlAttrs: {
     lang: "en",
   },

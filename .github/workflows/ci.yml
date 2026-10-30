@@ -4,28 +4,35 @@ on: push
 
 jobs:
   ci:
-    runs-on: ${{ matrix.os }}
-
-    strategy:
-      matrix:
-        os: [ubuntu-latest]
-        node: [22]
+    runs-on: ubuntu-latest
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
 
       - name: Install pnpm
-        uses: pnpm/action-setup@v4
+        uses: pnpm/action-setup@v5
 
       - name: Install node
-        uses: actions/setup-node@v6
+        uses: actions/setup-node@v7
         with:
-          node-version: ${{ matrix.node }}
+          node-version-file: .nvmrc
           cache: pnpm
 
       - name: Install dependencies
         run: pnpm install
+
+      # Nuxt only warns when it cannot load a layer, and the site then builds without it.
+      - name: Check that the nuxt-ui-kit layer is loaded
+        run: |
+          pnpm exec nuxt prepare 2>&1 | tee prepare.log
+          if grep -q "Cannot extend config" prepare.log; then
+            echo "::error::The nuxt-ui-kit layer was not loaded (Cannot extend config)."
+            exit 1
+          fi
+
+      - name: Check formatting
+        run: pnpm run format:check
 
       - name: Lint
         run: pnpm run lint

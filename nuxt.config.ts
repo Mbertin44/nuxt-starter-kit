@@ -2,7 +2,8 @@
 // pages/layouts already wired up, built on the `nuxt-ui-kit` component layer.
 // See README.md for what to rename or replace when starting a new project from this template.
 export default defineNuxtConfig({
-  extends: ["github:Mbertin44/nuxt-ui-kit"],
+  // nuxt-ui-kit is a pinned dependency (package.json): moving to a newer kit is an explicit change.
+  extends: ["nuxt-ui-kit"],
 
   modules: ["@nuxt/eslint", "@nuxt/ui", "@nuxt/image"],
 
@@ -25,12 +26,21 @@ export default defineNuxtConfig({
 
   runtimeConfig: {
     public: {
-      // Access key for https://web3forms.com, used by the example contact page
-      // to deliver form submissions without a backend. Set via
-      // NUXT_PUBLIC_WEB3FORMS_ACCESS_KEY at build time (see README.md).
+      // Access key for https://web3forms.com, used by the example contact page to submit
+      // the form from the browser. The Worker reads NUXT_PUBLIC_WEB3FORMS_ACCESS_KEY at
+      // runtime; prerendered pages also need it at build time (see README.md).
       web3formsAccessKey: "",
     },
   },
 
-  compatibilityDate: "2025-01-15",
+  nitro: {
+    preset: "cloudflare_module",
+    // Local builds match Workers Builds: generated wrangler config and Node.js compatibility.
+    cloudflare: {
+      deployConfig: true,
+      nodeCompat: true,
+    },
+  },
+
+  compatibilityDate: "2025-10-01",
 });
