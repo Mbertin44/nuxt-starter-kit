@@ -53,6 +53,7 @@ Source unique des conventions de tous les projets créés depuis ce starter, et 
 ### Composants `M`
 
 - Un `M<Nom>.vue` enveloppe de préférence un composant Nuxt UI : il transmet les props, les attributs et les slots, accepte `ui` et `class`, et n'ajoute que ce qui manque.
+- Il porte le nom de ce qu'il fait, jamais celui de son contenu ni celui du composant Nuxt UI qu'il enveloppe : il reste polyvalent et réutilisable. Exemple : `MScrollingText` (un texte qui défile), et non `MMarquee` ni `MHeroBand`.
 - Ses propres classes passent par `tv` de Nuxt UI (`import { tv } from "@nuxt/ui/utils/tv"`), comme les composants Nuxt UI : un slot par élément, `ui` du projet fusionné par tailwind-merge.
 - Aucune donnée du projet en dur : les textes arrivent par props et slots, les valeurs visuelles par le thème du projet.
 
